@@ -1,79 +1,51 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <link rel="stylesheet" href="style.css" />
-    <title></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sliding Clock</title>
 </head>
-
 <body>
-    <div class="clock">
-        <div class="hr">
-            <div class="strip">
-                <div class="number">0</div>
-                <div class="number">1</div>
-                <div class="number">2</div>
-            </div>
-            <div class="strip">
-                <div class="number">0</div>
-                <div class="number">1</div>
-                <div class="number">2</div>
-                <div class="number">3</div>
-                <div class="number">4</div>
-                <div class="number">5</div>
-                <div class="number">6</div>
-                <div class="number">7</div>
-                <div class="number">8</div>
-                <div class="number">9</div>
-            </div>
-        </div>
-        <div class="min">
-            <div class="strip">
-                <div class="number">0</div>
-                <div class="number">1</div>
-                <div class="number">2</div>
-                <div class="number">3</div>
-                <div class="number">4</div>
-                <div class="number">5</div>
-            </div>
-            <div class="strip">
-                <div class="number">0</div>
-                <div class="number">1</div>
-                <div class="number">2</div>
-                <div class="number">3</div>
-                <div class="number">4</div>
-                <div class="number">5</div>
-                <div class="number">6</div>
-                <div class="number">7</div>
-                <div class="number">8</div>
-                <div class="number">9</div>
-            </div>
-        </div>
-        <div class="sec">
-            <div class="strip">
-                <div class="number">0</div>
-                <div class="number">1</div>
-                <div class="number">2</div>
-                <div class="number">3</div>
-                <div class="number">4</div>
-                <div class="number">5</div>
-            </div>
-            <div class="strip">
-                <div class="number">0</div>
-                <div class="number">1</div>
-                <div class="number">2</div>
-                <div class="number">3</div>
-                <div class="number">4</div>
-                <div class="number">5</div>
-                <div class="number">6</div>
-                <div class="number">7</div>
-                <div class="number">8</div>
-                <div class="number">9</div>
-            </div>
-        </div>
+    <div id="clock">
+        <p id="time-display"></p>
     </div>
-    <script type="text/javascript" src="script.js"></script>
-</body>
+    <button id="toggle-format">Toggle 12/24 Hour Format</button>
+    <label for="timezone-offset">Timezone Offset (hours):</label>
+    <input type="number" id="timezone-offset" value="0" />
 
+    <script>
+        let is24HourFormat = true;
+        const timeDisplay = document.getElementById('time-display');
+        const toggleButton = document.getElementById('toggle-format');
+        const timezoneOffsetInput = document.getElementById('timezone-offset');
+
+        function updateClock() {
+            const currentTime = new Date();
+            const offset = parseInt(timezoneOffsetInput.value, 10);
+            const utcTime = new Date(currentTime.getTime() + (offset * 60 * 60 * 1000));
+
+            let hours = utcTime.getUTCHours();
+            const minutes = utcTime.getUTCMinutes();
+            const seconds = utcTime.getUTCSeconds();
+
+            if (!is24HourFormat) {
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12;
+                hours = hours ? hours : 12;
+                timeDisplay.textContent = hours + ':' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0') + ' ' + ampm;
+            } else {
+                timeDisplay.textContent = String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+            }
+        }
+
+        toggleButton.addEventListener('click', () => {
+            is24HourFormat = !is24HourFormat;
+        });
+
+        timezoneOffsetInput.addEventListener('change', updateClock);
+
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
 </html>
