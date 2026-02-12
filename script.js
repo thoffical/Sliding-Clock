@@ -1,52 +1,40 @@
-const strips = [...document.querySelectorAll(".strip")];
-const numberSize = "4"; // in rem
-
-var lastTime = new Array(-1, -1, -1)
-
-// highlight number i on strip s for 1 second
-function highlight(strip, d) {
-    strips[strip]
-        .querySelector(`.number:nth-of-type(${d + 1})`)
-        .classList.add("pop");
-
-    setTimeout(() => {
-        strips[strip]
-            .querySelector(`.number:nth-of-type(${d + 1})`)
-            .classList.remove("pop");
-    }, 950); // causes ticking
+// Function to initialize clock format toggle
+function initClockFormatToggle() {
+    const toggleButton = document.getElementById('clock-format-toggle');
+    toggleButton.addEventListener('click', function() {
+        const is24Hour = toggleButton.classList.toggle('active');
+        updateClockDisplay(is24Hour);
+    });
 }
 
-function stripSlider(strip, id, number) {
-    let d1 = Math.floor(number / 10);
-    let d2 = number % 10;
+// Function to update clock display based on format
+function updateClockDisplay(is24Hour) {
+    const currentTime = new Date();
+    let hours = currentTime.getUTCHours();
+    const minutes = String(currentTime.getUTCMinutes()).padStart(2, '0');
+    const seconds = String(currentTime.getUTCSeconds()).padStart(2, '0');
 
-    if (lastTime[id] == -1 || lastTime[id] != number) {
-        strips[strip].style.transform = `translateY(${d1 * -numberSize}rem)`;
-        strips[strip + 1].style.transform = `translateY(${d2 * -numberSize}rem)`;
-
-        lastTime[id] = number;
+    if (!is24Hour) {
+        const period = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12 || 12;  // Convert 0 to 12
+        document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds} ${period}`;
+    } else {
+        document.getElementById('clock').textContent = `${String(hours).padStart(2, '0')}:${minutes}:${seconds}`;
     }
-
-    highlight(strip, d1);
-    highlight(strip + 1, d2);
 }
 
-function updateClock() {
-    // get new time
-    const time = new Date();
-
-    // get h,m,s
-    const hours = time.getHours();
-    const mins = time.getMinutes();
-    const secs = time.getSeconds();
-
-    // slide strips
-    stripSlider(0, 0, hours);
-    stripSlider(2, 1, mins);
-    stripSlider(4, 2, secs);
+// Function to handle manual UTC/GMT offset
+function setTimezoneOffset() {
+    const offsetInput = document.getElementById('timezone-offset');
+    offsetInput.addEventListener('change', function() {
+        const offset = parseInt(offsetInput.value, 10);
+        const currentTime = new Date();
+        const utcTime = currentTime.getTime() + (offset * 3600 * 1000);
+        const localTime = new Date(utcTime);
+        updateClockDisplay(localTime);
+    });
 }
 
-// set Timer for clock-update
-setInterval(updateClock, 1000);
-
-updateClock();
+// Initialize the clock and controls
+initClockFormatToggle();
+setTimezoneOffset();
